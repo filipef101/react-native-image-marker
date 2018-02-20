@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.Log;
@@ -148,7 +147,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             float pX = width - textWidth - 30.0f;
             float pY = height - 30.0f;
 
-            if (X != null) {
+            if (X != null){
                 pX = X;
             }
 
@@ -258,6 +257,15 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             //建立画笔
             Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DEV_KERN_TEXT_FLAG);
 
+            //文字区域
+            //获取size
+
+            int left = 20;
+            int top = 20;
+            int right = 20+width;
+            int bottom = height + 20;
+            Rect textBounds = new Rect(left, top, right, bottom);
+
             textPaint.setAntiAlias(true);
 
             //设置字体失败时使用默认字体
@@ -275,73 +283,14 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             }
 
             textPaint.setTextSize(fSize);
+
+
+
+            textPaint.getTextBounds(mark, 0, mark.length(), textBounds);
             textPaint.setColor(Color.parseColor(color));
+            Position pos = getRectFromPosition(position, textBounds.width(), textBounds.height(), width, height);
 
-            float textHeight = 0, tmpWidth = 0, maxWidth = 0, firstHeight = 0;
-
-            int i = 0;
-            Rect tmpTextBounds = new Rect();
-            for (String line: mark.split("\n")) {
-                textPaint.getTextBounds(line, 0, line.length(), tmpTextBounds);
-
-                if (i == 0) {
-                    textHeight += tmpTextBounds.height();
-                    firstHeight = textHeight;
-                } else {
-                    textHeight += textPaint.descent() - textPaint.ascent();
-                }
-                tmpWidth = textPaint.measureText(line);
-                //tmpWidth = tmpTextBounds.width();
-
-                Log.v("smart-share", String.valueOf(textPaint.measureText(line)) + " vs " + tmpTextBounds.width());
-                if (tmpWidth > maxWidth) {
-                    maxWidth = tmpWidth;
-                }
-                i++;
-            }
-            //tmpy = tmpy - (textPaint.descent() - textPaint.ascent()) + fSize; // first line pos correction
-
-
-            /*for (String line: mark.split("\n")) {
-                canvas.drawText(line, x, y, textPaint);
-                y += textPaint.descent() - textPaint.ascent();
-                if (line.length() > lastLine.length()) {
-                    longestLine = line;
-                }
-                lastLine = line;
-            }*/
-
-
-            Position pos = getRectFromPosition(position, Math.round(maxWidth), Math.round(textHeight), width, height);
-            float radius = fSize / 4;
-            int innerRectFillColor = 0x4DFFFFFF;
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(innerRectFillColor);
-            paint.setStyle(Paint.Style.FILL);
-
-            float x = pos.getX(), y = pos.getY();
-            RectF rect = new RectF(x, y, x + maxWidth + (2 * fSize), y + textHeight + (2 * fSize));
-            canvas.drawRoundRect(rect, radius, radius, paint);
-
-            // add indents for the rect
-            x += fSize;
-            y += fSize;
-
-            // push text to upper edge
-            y += firstHeight;
-            for (String line: mark.split("\n")) {
-                canvas.drawText(line, x, y, textPaint);
-                y += textPaint.descent() - textPaint.ascent();
-            }
-
-            /*Position pos = getRectFromPosition(position, textBounds.width(), textBounds.height(), width, height);
-
-            float x = pos.getX(), y = pos.getY();
-
-            for (String line: mark.split("\n")) {
-                canvas.drawText(line, x, y, textPaint);
-                y += textPaint.descent() - textPaint.ascent();
-            }*/
+            canvas.drawText(mark, pos.getX(), pos.getY(), textPaint);
 
             canvas.save(Canvas.ALL_SAVE_FLAG);
             canvas.restore();
