@@ -245,15 +245,7 @@ UIImage * markerImgByPostion(UIImage *image, NSString* text, MarkerPosition posi
             };
             break;
     }
-    CGPoint origin = rect.origin;
-    CGRect outsideRect = CGRectInset(rect, -[font pointSize], -[font pointSize]);
-    outsideRect.origin = origin;
-    [[UIColor whiteColor] setFill];
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:outsideRect cornerRadius:[font pointSize] / 4];
-    [path fillWithBlendMode:kCGBlendModeNormal alpha:0.3];
     
-    rect.origin.x = rect.origin.x + [font pointSize];
-    rect.origin.y = rect.origin.y + [font pointSize];
     [text drawInRect:rect withAttributes:attr];
     UIImage *aimg = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
