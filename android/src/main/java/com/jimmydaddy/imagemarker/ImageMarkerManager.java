@@ -10,6 +10,8 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.Log;
+import android.net.Uri;
+import android.content.Context;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -18,8 +20,11 @@ import com.facebook.react.bridge.ReactMethod;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 
@@ -39,6 +44,32 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
         return "ImageMarker";
     }
 
+    private InputStream getStream(String path) throws FileNotFoundException{
+        File file = new File(path);
+        if (!file.exists()){
+            Context context = this.getReactApplicationContext();
+            int resourceId = context.getResources().getIdentifier(path, "drawable", context.getPackageName());
+            if (resourceId == 0){
+                return null;
+            } else {
+                return context.getResources().openRawResource(resourceId);
+            }
+        } else {
+            return new FileInputStream(file);
+        }
+    }
+
+    private InputStream resetIfPossible (InputStream inputStream, String path) throws IOException  {
+        if (inputStream instanceof FileInputStream) {
+            inputStream.close();
+            File file = new File(path);
+            inputStream = new FileInputStream(file);
+            // inputStream.skip( 0 );
+        } else {
+            inputStream.reset();
+        }
+        return inputStream;
+    }
 
     /**
      *
@@ -63,21 +94,24 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
         try {
 
 
-            File file = new File(imgSavePath);
-            if (!file.exists()){
+            InputStream inputS = this.getStream(imgSavePath);
+            if (inputS == null){
+                // throw new Exception("I failed because not found");
                 promise.reject( "error","Can't retrieve the file from the path.",null);
+                return;
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             try {
-                BitmapFactory.decodeFile(imgSavePath, options); //此时返回bm为空
+                BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), options); //此时返回bm为空
             } catch (OutOfMemoryError e) {
                 System.out.print(e.getMessage());
                 System.gc();
                 System.runFinalization();
-                BitmapFactory.decodeFile(imgSavePath, options); //此时返回bm为空
-
+                inputS = this.resetIfPossible(inputS, imgSavePath);
+                BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), options); //此时返回bm为空
             }
+            inputS = this.resetIfPossible(inputS, imgSavePath);
 
             int height = options.outHeight;
             int width =  options.outWidth;
@@ -103,15 +137,18 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             options.inJustDecodeBounds = false;
             Bitmap prePhoto = null;
             try {
-                prePhoto = BitmapFactory.decodeFile(imgSavePath);
+                prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), null);
             } catch (OutOfMemoryError e) {
                 System.out.print(e.getMessage());
                 while(prePhoto == null) {
                     System.gc();
                     System.runFinalization();
-                    prePhoto = BitmapFactory.decodeFile(imgSavePath);
+                    inputS = this.resetIfPossible(inputS, imgSavePath);
+                    
+                    prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), null);
                 }
             }
+            inputS = this.resetIfPossible(inputS, imgSavePath);
 //            if (percent > 1) {
 //                prePhoto = Bitmap.createScaledBitmap(prePhoto, width, height, true);
 //            }
@@ -166,6 +203,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             promise.resolve(resultFile);
         } catch (Exception e) {
             e.printStackTrace();
+            Log.d("MARKER",  e.getMessage());
             promise.reject("error", e.getMessage(), e);
         } finally {
             isFinished = true;
@@ -205,7 +243,8 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
         try {
             File file = new File(imgSavePath);
             if (!file.exists()){
-                promise.reject("error", imgSavePath+"not exist", null);
+                promise.reject( "error","Can't retrieve the file from the path.",null);
+
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -323,6 +362,12 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
         }
     }
 
+    public String getURLForResource (String drawableName) {
+        Context context = this.getReactApplicationContext();
+        int resourceId = context.getResources().getIdentifier(drawableName, "drawable", context.getPackageName());
+        return "android.resource://"+context.getPackageName()+"/" +resourceId;
+    }
+
     @ReactMethod
     public void markWithImage(String imgSavePath, String markerPath, Integer X, Integer Y, Float scale, Integer quality, String fileName, Promise promise ) {
         BufferedOutputStream bos = null;
@@ -398,27 +443,29 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             // 原图生成 - end
 
             // marker生成 -start
-            File markerFile = new File(markerPath);
-            if (!markerFile.exists()){
+            InputStream inputS = this.getStream(markerPath);
+            if (inputS == null){
                 promise.reject( "error","Can't retrieve the file from the path.",null);
             }
             BitmapFactory.Options markerOptions = new BitmapFactory.Options();
 
 
             try {
-                prePhoto = BitmapFactory.decodeFile(markerPath, markerOptions);
+                prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), markerOptions);
             } catch (OutOfMemoryError e) {
                 System.out.print(e.getMessage());
                 while(prePhoto == null) {
                     System.gc();
                     System.runFinalization();
-                    prePhoto = BitmapFactory.decodeFile(markerPath, markerOptions);
+                    inputS = this.resetIfPossible(inputS, markerPath);
+                    prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), markerOptions);
                 }
             }
+            inputS = this.resetIfPossible(inputS, markerPath);
 
             Bitmap newMarker = prePhoto;
 
-            if (scale != 1 && scale >= 0){
+            if (scale != 1 && scale >= 0){  
 
                 // 取得想要缩放的matrix参数
                 Matrix matrix = new Matrix();
