@@ -300,6 +300,7 @@ RCT_EXPORT_METHOD(addText: (NSString *)path
                   fontSize:(CGFloat)fontSize
                   quality:(CGFloat)quality
                   fileName:(NSString*)fileName
+                  anchor:(CGFloat*)fileName
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
