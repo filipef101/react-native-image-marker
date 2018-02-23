@@ -17,6 +17,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.views.text.ReactFontManager;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -84,7 +85,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
      * @param promise
      */
     @ReactMethod
-    public void addText(String imgSavePath, String mark, Integer X, Integer Y, String color, String fontName, int fontSize, Integer quality, String fileName, Float anchor, Promise promise) {
+    public void addText(String imgSavePath, String mark, Integer X, Integer Y, String color, String fontName, int fontSize, Integer quality, String fileName, Float anchorX, Promise promise) {
        if (TextUtils.isEmpty(mark)){
            promise.reject("error", "mark should not be empty", null);
        }
@@ -169,7 +170,10 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
 //            textPaint.setTypeface(Typeface.DEFAULT);
             //设置字体失败时使用默认字体
             try {
-                textPaint.setTypeface(Typeface.create(fontName, Typeface.NORMAL));
+                textPaint.setTypeface(ReactFontManager.getInstance().getTypeface(
+                    fontName,
+                    Typeface.NORMAL,
+                    getReactApplicationContext().getAssets()));
             } catch (Exception e) {
 
             } finally {
@@ -180,12 +184,11 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             //阴影设置
             //                textPaint.setShadowLayer(3f, 1, 1, Color.DKGRAY);
             float textWidth = textPaint.measureText(mark);
-            textWidth = (1 - anchor) *  textWidth;
             float pX = width - textWidth - 30.0f;
             float pY = height - 30.0f;
 
             if (X != null){
-                pX = X;
+                pX = X - textWidth * anchorX;
             }
 
             if (Y != null) {
