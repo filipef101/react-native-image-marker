@@ -300,7 +300,7 @@ RCT_EXPORT_METHOD(addText: (NSString *)path
                   fontSize:(CGFloat)fontSize
                   quality:(CGFloat)quality
                   fileName:(NSString*)fileName
-                  anchor:(CGFloat*)fileName
+                  anchorX:(CGFloat)anchorX
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -316,11 +316,13 @@ RCT_EXPORT_METHOD(addText: (NSString *)path
                 return;
             }
         }
-        
         // Do mark
         UIFont* font = [UIFont fontWithName:fontName size:fontSize];
         UIColor* uiColor = [self getColor:color];
-        UIImage * scaledImage = markerImg(image, text, X, Y , uiColor, font);
+        NSDictionary *userAttributes = @{NSFontAttributeName: font,
+                                         NSForegroundColorAttributeName: uiColor};
+        CGSize textSize = [text sizeWithAttributes: userAttributes];
+        UIImage * scaledImage = markerImg(image, text, X - anchorX * textSize.width, Y , uiColor, font);
         if (scaledImage == nil) {
             NSLog(@"Can't mark the image");
             reject(@"error",@"Can't mark the image.", error);
