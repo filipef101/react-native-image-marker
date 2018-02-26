@@ -80,7 +80,8 @@ UIImage * markerImg(UIImage *image, NSString* text, CGFloat X, CGFloat Y, UIColo
                            NSFontAttributeName: font,   //设置字体
                            NSForegroundColorAttributeName : color      //设置字体颜色
                            };
-    CGRect position = CGRectMake(X, Y, w, h);
+    CGFloat topSpace = (font.ascender - font.capHeight);
+    CGRect position = CGRectMake(X, Y-topSpace, w, h);
     [text drawInRect:position withAttributes:attr];
     UIImage *aimg = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
