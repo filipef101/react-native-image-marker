@@ -9,6 +9,7 @@
 #import "RCTImageMarker.h"
 #import <React/RCTBridgeModule.h>
 #include <CoreText/CTFont.h>
+#import <React/RCTFont.h>
 #include <CoreText/CTStringAttributes.h>
 #include "RCTConvert+ImageMarker.h"
 
@@ -297,7 +298,7 @@ RCT_EXPORT_METHOD(addText: (NSString *)path
                   X:(CGFloat)X
                   Y:(CGFloat)Y
                   color:(NSString*)color
-                  fontName:(NSString*)fontName
+                  fontName:(NSString*)fontNameWithWeight
                   fontSize:(CGFloat)fontSize
                   quality:(CGFloat)quality
                   fileName:(NSString*)fileName
@@ -317,8 +318,10 @@ RCT_EXPORT_METHOD(addText: (NSString *)path
                 return;
             }
         }
+        NSArray *fontData = [fontNameWithWeight componentsSeparatedByString: @":"];
+        
         // Do mark
-        UIFont* font = [UIFont fontWithName:fontName size:fontSize];
+        UIFont* font = [RCTFont updateFont:nil withFamily:fontData[0] size:@(fontSize) weight:fontData.count > 1 ? fontData[1] : @"normal" style:nil variant:nil scaleMultiplier:1];
         UIColor* uiColor = [self getColor:color];
         NSDictionary *userAttributes = @{NSFontAttributeName: font,
                                          NSForegroundColorAttributeName: uiColor};
