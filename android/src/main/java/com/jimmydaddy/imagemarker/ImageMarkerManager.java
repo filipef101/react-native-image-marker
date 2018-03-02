@@ -102,7 +102,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
                 return;
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
+            options.inJustDecodeBounds = true;             options.inPreferQualityOverSpeed = true;
             try {
                 BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), options); //此时返回bm为空
             } catch (OutOfMemoryError e) {
@@ -223,7 +223,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             bos = new BufferedOutputStream(new FileOutputStream(resultFile));
             
             //            int quaility = (int) (100 / percent > 80 ? 80 : 100 / percent);
-            icon.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+            icon.compress(Bitmap.CompressFormat.PNG, 100, bos);
             bos.flush();
             //保存成功的
             promise.resolve(resultFile);
@@ -286,7 +286,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
                 
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
+            options.inJustDecodeBounds = true;             options.inPreferQualityOverSpeed = true;
             //获取图片信息
             try {
                 BitmapFactory.decodeFile(imgSavePath, options); //此时返回bm为空
@@ -425,6 +425,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
+            options.inPreferQualityOverSpeed = true;
             try {
                 BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), options); //此时返回bm为空
             } catch (OutOfMemoryError e) {
@@ -582,7 +583,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
                 promise.reject( "error","Can't retrieve the file from the path.",null);
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
+            options.inJustDecodeBounds = true;             options.inPreferQualityOverSpeed = true;
             try {
                 BitmapFactory.decodeFile(imgSavePath, options); //此时返回bm为空
             } catch (OutOfMemoryError e) {
