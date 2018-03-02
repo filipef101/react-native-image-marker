@@ -223,7 +223,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             bos = new BufferedOutputStream(new FileOutputStream(resultFile));
             
             //            int quaility = (int) (100 / percent > 80 ? 80 : 100 / percent);
-            icon.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            icon.compress(Bitmap.CompressFormat.WEBP, 100, bos);
             bos.flush();
             //保存成功的
             promise.resolve(resultFile);
@@ -377,7 +377,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             bos = new BufferedOutputStream(new FileOutputStream(resultFile));
             
             //            int quaility = (int) (100 / percent > 80 ? 80 : 100 / percent);
-            icon.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+            icon.compress(Bitmap.CompressFormat.WEBP, quality, bos);
             bos.flush();
             //保存成功的
             promise.resolve(resultFile);
@@ -546,7 +546,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             bos = new BufferedOutputStream(new FileOutputStream(resultFile));
             
             //            int quaility = (int) (100 / percent > 80 ? 80 : 100 / percent);
-            icon.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+            icon.compress(Bitmap.CompressFormat.WEBP, quality, bos);
             bos.flush();
             //保存成功的
             promise.resolve(resultFile);
@@ -703,7 +703,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             bos = new BufferedOutputStream(new FileOutputStream(resultFile));
             
             //            int quaility = (int) (100 / percent > 80 ? 80 : 100 / percent);
-            icon.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+            icon.compress(Bitmap.CompressFormat.WEBP, quality, bos);
             bos.flush();
             //保存成功的
             promise.resolve(resultFile);
