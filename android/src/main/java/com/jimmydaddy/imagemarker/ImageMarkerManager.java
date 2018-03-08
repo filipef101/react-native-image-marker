@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.net.Uri;
 import android.content.Context;
@@ -79,7 +80,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
      * @param X
      * @param Y
      * @param color
-     * @param fontName
+     * @param fontNameWithWeight
      * @param fontSize
      * @param quality
      * @param promise
@@ -489,30 +490,40 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             }
             
             // 原图生成 - end
-            
+            boolean isB64 = false;
             // marker生成 -start
-            inputS = this.getStream(markerPath);
-            if (inputS == null){
-                promise.reject( "error","Can't retrieve the file from the path.",null);
+            Bitmap decodedByte = null;
+            if (markerPath.startsWith("data:image/png;base64,")){
+                isB64=true;
+                markerPath = markerPath.replace("data:image/png;base64,","");
+                byte[] decodedString = Base64.decode(markerPath, Base64.DEFAULT);
+                decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
             }
             BitmapFactory.Options markerOptions = new BitmapFactory.Options();
-            
-            
-            try {
-                prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), markerOptions);
-            } catch (OutOfMemoryError e) {
-                System.out.print(e.getMessage());
-                while(prePhoto == null) {
-                    System.gc();
-                    System.runFinalization();
-                    inputS = this.resetIfPossible(inputS, markerPath);
-                    prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0,0,0,0), markerOptions);
+            if (!isB64) {
+                inputS = this.getStream(markerPath);
+                if (inputS == null) {
+                    promise.reject("error", "Can't retrieve the file from the path.", null);
+                    return;
                 }
+
+                try {
+                    prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0, 0, 0, 0), markerOptions);
+                } catch (OutOfMemoryError e) {
+                    System.out.print(e.getMessage());
+                    while (prePhoto == null) {
+                        System.gc();
+                        System.runFinalization();
+                        inputS = this.resetIfPossible(inputS, markerPath);
+                        prePhoto = BitmapFactory.decodeStream(inputS, new Rect(0, 0, 0, 0), markerOptions);
+                    }
+                }
+                inputS = this.resetIfPossible(inputS, markerPath);
             }
-            inputS = this.resetIfPossible(inputS, markerPath);
-            
-            Bitmap newMarker = prePhoto;
-            
+            Bitmap newMarker;
+            if (!isB64) newMarker = prePhoto;
+            else newMarker = decodedByte;
             if (scale != 1 && scale >= 0){
                 
                 // 取得想要缩放的matrix参数
