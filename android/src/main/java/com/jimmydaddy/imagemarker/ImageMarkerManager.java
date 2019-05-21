@@ -88,7 +88,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
     @ReactMethod
     public void addText(String imgSavePath, String mark, Integer X, Integer Y, String color, String fontNameWithWeight, int fontSize, Integer quality, String fileName, Float anchorX, Promise promise) {
         if (TextUtils.isEmpty(mark)){
-            promise.reject("error", "mark should not be empty", null);
+            promise.reject("error", "mark should not be empty");
         }
         BufferedOutputStream bos = null;
         boolean isFinished;
@@ -99,7 +99,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             InputStream inputS = this.getStream(imgSavePath);
             if (inputS == null){
                 // throw new Exception("I failed because not found");
-                promise.reject( "error","Can't retrieve the file from the path.",null);
+                promise.reject( "error","Can't retrieve the file from the path.");
                 return;
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -275,7 +275,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
     @ReactMethod
     public void addTextByPostion(String imgSavePath, String mark, String position, String color, String fontName, Integer fontSize, Integer quality, String fileName, Promise promise) {
         if (TextUtils.isEmpty(mark)){
-            promise.reject("error", "mark should not be empty", null);
+            promise.reject("error", "mark should not be empty");
         }
         BufferedOutputStream bos = null;
         boolean isFinished;
@@ -283,7 +283,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
         try {
             File file = new File(imgSavePath);
             if (!file.exists()){
-                promise.reject( "error","Can't retrieve the file from the path.",null);
+                promise.reject( "error","Can't retrieve the file from the path.");
                 
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -371,7 +371,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             
             canvas.drawText(mark, pos.getX(), pos.getY(), textPaint);
             
-            canvas.save(Canvas.ALL_SAVE_FLAG);
+            canvas.save();
             canvas.restore();
             
             String resultFile = generateCacheFilePathForMarker(imgSavePath, fileName);
@@ -421,7 +421,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             InputStream inputS = this.getStream(imgSavePath);
             if (inputS == null){
                 // throw new Exception("I failed because not found");
-                promise.reject( "error","Can't retrieve the file from the path.",null);
+                promise.reject( "error","Can't retrieve the file from the path.");
                 return;
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -504,7 +504,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             if (!isB64) {
                 inputS = this.getStream(markerPath);
                 if (inputS == null) {
-                    promise.reject("error", "Can't retrieve the file from the path.", null);
+                    promise.reject("error", "Can't retrieve the file from the path.");
                     return;
                 }
 
@@ -550,7 +550,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             
             
             // 保存
-            canvas.save(Canvas.ALL_SAVE_FLAG);
+            canvas.save();
             // 存储
             canvas.restore();
             String resultFile = generateCacheFilePathForMarker(imgSavePath, fileName);
@@ -591,7 +591,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             // 原图生成 - start
             File file = new File(imgSavePath);
             if (!file.exists()){
-                promise.reject( "error","Can't retrieve the file from the path.",null);
+                promise.reject( "error","Can't retrieve the file from the path.");
             }
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;             options.inPreferQualityOverSpeed = true;
@@ -658,7 +658,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             // marker生成 -start
             File markerFile = new File(markerPath);
             if (!markerFile.exists()){
-                promise.reject( "error","Can't retrieve the file from the path.",null);
+                promise.reject( "error","Can't retrieve the file from the path.");
             }
             BitmapFactory.Options markerOptions = new BitmapFactory.Options();
             
@@ -706,7 +706,7 @@ public class ImageMarkerManager extends ReactContextBaseJavaModule {
             
             
             // 保存
-            canvas.save(Canvas.ALL_SAVE_FLAG);
+            canvas.save();
             // 存储
             canvas.restore();
             
